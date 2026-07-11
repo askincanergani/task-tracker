@@ -23,12 +23,18 @@ const PRIORITY_ORDER = { yuksek: 0, orta: 1, dusuk: 2 };
 const PRIORITY_COLOR = { yuksek: "\x1b[31m", orta: "\x1b[33m", dusuk: "\x1b[32m" };
 const RESET = "\x1b[0m";
 
-function listTasks(tasks) {
-  if (tasks.length === 0) {
-    console.log("Henüz görev yok.");
+function listTasks(tasks, filter) {
+  let filtered = tasks;
+  if (filter === "pending") {
+    filtered = tasks.filter((task) => !task.done);
+  } else if (filter === "done") {
+    filtered = tasks.filter((task) => task.done);
+  }
+  if (filtered.length === 0) {
+    console.log("Gösterilecek görev yok.");
     return;
   }
-  const sorted = [...tasks].sort(
+  const sorted = [...filtered].sort(
     (a, b) => (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1)
   );
   for (const task of sorted) {
@@ -71,7 +77,14 @@ if (command === "add") {
   saveTasks(tasks);
   console.log(`Eklendi: ${text} (${priority})`);
 } else if (command === "list") {
-  listTasks(tasks);
+  const filterArg = process.argv[3];
+  let filter = null;
+  if (filterArg === "--pending") {
+    filter = "pending";
+  } else if (filterArg === "--done") {
+    filter = "done";
+  }
+  listTasks(tasks, filter);
 } else if (command === "complete") {
   const id = Number(process.argv[3]);
   completeTask(tasks, id);
