@@ -38,6 +38,13 @@ function completeTask(tasks, id) {
   }
 }
 
+function deleteTask(tasks, id) {
+  const index = tasks.findIndex((task) => task.id === id);
+  if (index !== -1) {
+    tasks.splice(index, 1);
+  }
+}
+
 // --- Terminalden gelen komutu oku ve çalıştır ---
 // process.argv[0] = node, process.argv[1] = index.js, process.argv[2] = komut (add/list/complete)
 const command = process.argv[2];
@@ -55,6 +62,11 @@ if (command === "add") {
   completeTask(tasks, id);
   saveTasks(tasks);
   console.log(`${id} numaralı görev tamamlandı.`);
+} else if (command === "delete") {
+  const id = Number(process.argv[3]);
+  deleteTask(tasks, id);
+  saveTasks(tasks);
+  console.log(`${id} numaralı görev silindi.`);
 } else {
-  console.log("Kullanım: node index.js add|list|complete ...");
+  console.log("Kullanım: node index.js add|list|complete|delete ...");
 }
