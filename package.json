@@ -4,7 +4,7 @@
   "description": "Basit bir komut satırı görev takip aracı. Bu proje, git/GitHub ve temel yazılım geliştirme kavramlarını öğrenmek amacıyla adım adım geliştiriliyor.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "repository": {
     "type": "git",

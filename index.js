@@ -1,60 +1,30 @@
-const fs = require("fs");
+const {
+  loadTasks,
+  saveTasks,
+  addTask,
+  completeTask,
+  deleteTask,
+  filterTasks,
+  sortByPriority,
+} = require("./tasks");
 
-const DATA_FILE = "tasks.json";
-
-function loadTasks() {
-  if (!fs.existsSync(DATA_FILE)) {
-    return [];
-  }
-  const content = fs.readFileSync(DATA_FILE, "utf-8");
-  return JSON.parse(content);
-}
-
-function saveTasks(tasks) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(tasks, null, 2));
-}
-
-function addTask(tasks, text, priority = "orta") {
-  const nextId = tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
-  tasks.push({ id: nextId, text: text, done: false, priority: priority });
-}
-
-const PRIORITY_ORDER = { yuksek: 0, orta: 1, dusuk: 2 };
 const PRIORITY_COLOR = { yuksek: "\x1b[31m", orta: "\x1b[33m", dusuk: "\x1b[32m" };
 const RESET = "\x1b[0m";
 
-function listTasks(tasks) {
+function printTasks(tasks) {
   if (tasks.length === 0) {
-    console.log("Henüz görev yok.");
+    console.log("Gösterilecek görev yok.");
     return;
   }
-  const sorted = [...tasks].sort(
-    (a, b) => (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1)
-  );
-  for (const task of sorted) {
+  for (const task of tasks) {
     const mark = task.done ? "[x]" : "[ ]";
     const color = PRIORITY_COLOR[task.priority] || "";
     console.log(`${mark} ${task.id}. ${color}●${RESET} ${task.text}`);
   }
 }
 
-function completeTask(tasks, id) {
-  for (const task of tasks) {
-    if (task.id === id) {
-      task.done = true;
-    }
-  }
-}
-
-function deleteTask(tasks, id) {
-  const index = tasks.findIndex((task) => task.id === id);
-  if (index !== -1) {
-    tasks.splice(index, 1);
-  }
-}
-
 // --- Terminalden gelen komutu oku ve çalıştır ---
-// process.argv[0] = node, process.argv[1] = index.js, process.argv[2] = komut (add/list/complete)
+// process.argv[0] = node, process.argv[1] = index.js, process.argv[2] = komut (add/list/complete/delete)
 const command = process.argv[2];
 const tasks = loadTasks();
 
@@ -71,7 +41,14 @@ if (command === "add") {
   saveTasks(tasks);
   console.log(`Eklendi: ${text} (${priority})`);
 } else if (command === "list") {
-  listTasks(tasks);
+  const filterArg = process.argv[3];
+  let filter = null;
+  if (filterArg === "--pending") {
+    filter = "pending";
+  } else if (filterArg === "--done") {
+    filter = "done";
+  }
+  printTasks(sortByPriority(filterTasks(tasks, filter)));
 } else if (command === "complete") {
   const id = Number(process.argv[3]);
   completeTask(tasks, id);
