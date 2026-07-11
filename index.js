@@ -14,19 +14,27 @@ function saveTasks(tasks) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(tasks, null, 2));
 }
 
-function addTask(tasks, text) {
+function addTask(tasks, text, priority = "orta") {
   const nextId = tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
-  tasks.push({ id: nextId, text: text, done: false });
+  tasks.push({ id: nextId, text: text, done: false, priority: priority });
 }
+
+const PRIORITY_ORDER = { yuksek: 0, orta: 1, dusuk: 2 };
+const PRIORITY_COLOR = { yuksek: "\x1b[31m", orta: "\x1b[33m", dusuk: "\x1b[32m" };
+const RESET = "\x1b[0m";
 
 function listTasks(tasks) {
   if (tasks.length === 0) {
     console.log("Henüz görev yok.");
     return;
   }
-  for (const task of tasks) {
+  const sorted = [...tasks].sort(
+    (a, b) => (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1)
+  );
+  for (const task of sorted) {
     const mark = task.done ? "[x]" : "[ ]";
-    console.log(`${mark} ${task.id}. ${task.text}`);
+    const color = PRIORITY_COLOR[task.priority] || "";
+    console.log(`${mark} ${task.id}. ${color}●${RESET} ${task.text}`);
   }
 }
 
@@ -51,10 +59,17 @@ const command = process.argv[2];
 const tasks = loadTasks();
 
 if (command === "add") {
-  const text = process.argv.slice(3).join(" ");
-  addTask(tasks, text);
+  const args = process.argv.slice(3);
+  let priority = "orta";
+  const flagIndex = args.indexOf("--priority");
+  if (flagIndex !== -1) {
+    priority = args[flagIndex + 1];
+    args.splice(flagIndex, 2);
+  }
+  const text = args.join(" ");
+  addTask(tasks, text, priority);
   saveTasks(tasks);
-  console.log(`Eklendi: ${text}`);
+  console.log(`Eklendi: ${text} (${priority})`);
 } else if (command === "list") {
   listTasks(tasks);
 } else if (command === "complete") {
