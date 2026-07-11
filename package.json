@@ -1,0 +1,21 @@
+{
+  "name": "task-tracker",
+  "version": "1.0.0",
+  "description": "Basit bir komut satırı görev takip aracı. Bu proje, git/GitHub ve temel yazılım geliştirme kavramlarını öğrenmek amacıyla adım adım geliştiriliyor.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/askincanergani/task-tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/askincanergani/task-tracker/issues"
+  },
+  "homepage": "https://github.com/askincanergani/task-tracker#readme"
+}
